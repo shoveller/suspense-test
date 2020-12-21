@@ -8,7 +8,7 @@ const fakeApi = (value: string) => {
 	})
 }
 
-const safeCall = (promise: Promise<string>) => {
+const suspenseCall = (promise: Promise<string>) => {
 	let data: string | Error
 	let status = 'pending'
 	const suspense = promise.then(
@@ -35,7 +35,7 @@ const safeCall = (promise: Promise<string>) => {
 	}
 }
 
-const api = safeCall(fakeApi('출력할 데이터'))
+const api = suspenseCall(fakeApi('출력할 데이터'))
 
 const DataPane = () => {
 	const data = api()
