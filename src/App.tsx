@@ -12,24 +12,16 @@ function App() {
 				<BrowserRouter>
 					<ul>
 						<li>
-							<Link to="/">To Main Page</Link>
+							<Link to="/">ErrorBoundary 테스트</Link>
 						</li>
 						<li>
-							<Link to="/sub">To Sub Page</Link>
+							<Link to="/suspense">Suspense 테스트</Link>
 						</li>
+						{/*<li>*/}
+						{/*	<Link to="/sub">라이브러리를 사용해서 테스트</Link>*/}
+						{/*</li>*/}
 					</ul>
 					<DynamicRoutes Loading={<Loading />} />
-					<p>
-						Add some pages under<code>src/pages</code> and save to reload.
-					</p>
-					<a
-						className="App-link"
-						href="https://reactjs.org"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Learn React
-					</a>
 				</BrowserRouter>
 			</header>
 		</div>

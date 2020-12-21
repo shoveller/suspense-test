@@ -33,6 +33,7 @@
     "prettier/prettier": [
       "error",
       {
+        "arrayBracketSpacing": "always",
         "bracketSpacing": true,
         "jsxBracketSameLine": false,
         "printWidth": 90,
