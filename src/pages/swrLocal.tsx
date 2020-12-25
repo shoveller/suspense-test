@@ -1,5 +1,5 @@
 import { ErrorBoundary } from 'ErrorBoundary'
-import React, { Suspense } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { createLocalStateHook } from 'useLocalState'
 
 const FailFallBack = () => <div>통신 실패</div>
@@ -22,40 +22,34 @@ const DummyPane = () => {
 
 const PlusButton = () => {
   const { mutate } = useSwrLocalState()
-
-  return (
-    <button
-      onClick={() =>
-        mutate((state) => {
-          return {
-            ...state,
-            count: state.count + 1,
-          }
-        })
-      }
-    >
-      +
-    </button>
+  const onClick = useCallback(
+    () =>
+      mutate((state) => {
+        return {
+          ...state,
+          count: state.count + 1,
+        }
+      }),
+    [mutate],
   )
+
+  return <button onClick={onClick}>+</button>
 }
 
 const MinusButton = () => {
   const { mutate } = useSwrLocalState()
-
-  return (
-    <button
-      onClick={() =>
-        mutate((state) => {
-          return {
-            ...state,
-            count: state.count - 1,
-          }
-        })
-      }
-    >
-      -
-    </button>
+  const onClick = useCallback(
+    () =>
+      mutate((state) => {
+        return {
+          ...state,
+          count: state.count - 1,
+        }
+      }),
+    [mutate],
   )
+
+  return <button onClick={onClick}>-</button>
 }
 
 const SwrLocal = () => {
