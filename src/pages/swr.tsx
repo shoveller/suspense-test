@@ -1,6 +1,6 @@
 import { ErrorBoundary } from 'ErrorBoundary'
 import React, { ReactNode, Suspense } from 'react'
-import useSwr, { SWRConfig, ConfigInterface } from 'swr'
+import useSwr, { ConfigInterface,SWRConfig } from 'swr'
 
 const FailFallBack = () => <div>통신 실패</div>
 
@@ -8,6 +8,7 @@ const LoadingFallBack = () => <div>로딩중...</div>
 
 const fakeApi = (value: string) => {
 	console.log('호출됨')
+
 	return new Promise<string>((resolve) => {
 		setTimeout(() => resolve(value + new Date().getTime()), 1000)
 	})

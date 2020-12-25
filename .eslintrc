@@ -1,68 +1,18 @@
 {
-  "settings": {
-    "react": {
-      "version": "latest"
-    }
-  },
-  "env": {
-    "browser": true,
-    "es6": true
-  },
-  "extends": [
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
-  ],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": 2018,
-    "sourceType": "module",
-    "project": "./tsconfig.json"
-  },
-  "plugins": [
-    "react",
-    "@typescript-eslint",
-    "prettier"
-  ],
+  "extends": ["react-app", "prettier"],
+  "plugins": ["react-hooks", "simple-import-sort"],
   "rules": {
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "prettier/prettier": [
+    "react-hooks/rules-of-hooks": "error",
+    "padding-line-between-statements": [
       "error",
-      {
-        "padding-line-between-statements": [
-          "error",
-          {
-            "blankLine": "always",
-            "prev": "var",
-            "next": "return"
-          }
-        ],
-        "arrayBracketSpacing": "always",
-        "bracketSpacing": true,
-        "jsxBracketSameLine": false,
-        "printWidth": 90,
-        "semi": false,
-        "singleQuote": true,
-        "tabWidth": 2,
-        //        "trailingComma": "es5",
-        "useTabs": true,
-        "overrides": [
-          {
-            "files": "{.prettierrc,.watchmanconfig,.ember-cli}",
-            "options": {
-              "parser": "json"
-            }
-          }
-        ]
-      }
-    ]
+      { "blankLine": "always", "prev": "*", "next": "return" }
+    ],
+    "max-depth": ["error", { "max": 3 }],
+    "no-unneeded-ternary": ["error", { "defaultAssignment": false }],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "sort-imports": "off",
+    "import/order": "off",
+    "semi": ["error", "never"]
   }
 }
