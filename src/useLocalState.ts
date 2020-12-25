@@ -2,7 +2,7 @@ import useSwr from 'swr'
 
 export const isTruthy = (value: unknown) => value !== undefined && value !== null
 
-export const useLocalState = <T>(key: string, initialState: T) => {
+export const createLocalStateHook = <T>(key: string, initialState: T) => () => {
   const { data, mutate } = useSwr(key, () => {
     const item = sessionStorage.getItem(key)
     if (isTruthy(item)) {
