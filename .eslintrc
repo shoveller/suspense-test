@@ -27,12 +27,24 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["react", "@typescript-eslint", "prettier"],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier"
+  ],
   "rules": {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "prettier/prettier": [
       "error",
       {
+        "padding-line-between-statements": [
+          "error",
+          {
+            "blankLine": "always",
+            "prev": "var",
+            "next": "return"
+          }
+        ],
         "arrayBracketSpacing": "always",
         "bracketSpacing": true,
         "jsxBracketSameLine": false,
@@ -40,12 +52,14 @@
         "semi": false,
         "singleQuote": true,
         "tabWidth": 2,
-        "trailingComma": "es5",
+        //        "trailingComma": "es5",
         "useTabs": true,
         "overrides": [
           {
             "files": "{.prettierrc,.watchmanconfig,.ember-cli}",
-            "options": {"parser": "json"}
+            "options": {
+              "parser": "json"
+            }
           }
         ]
       }

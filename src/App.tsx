@@ -17,9 +17,9 @@ function App() {
 						<li>
 							<Link to="/suspense">Suspense 테스트</Link>
 						</li>
-						{/*<li>*/}
-						{/*	<Link to="/sub">라이브러리를 사용해서 테스트</Link>*/}
-						{/*</li>*/}
+						<li>
+							<Link to="/swr">swr을 활용한 ErrorBoundary Suspense 테스트</Link>
+						</li>
 					</ul>
 					<DynamicRoutes Loading={<Loading />} />
 				</BrowserRouter>

@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react'
+import { Component, ReactNode } from 'react'
 
 interface IProps {
 	fallback: ReactNode
@@ -12,6 +12,7 @@ interface IState {
 export class ErrorBoundary extends Component<IProps, IState> {
 	// 에러 상태를 설정하는 static 메소드를 반드시 구현해야 합니다.
 	static getDerivedStateFromError(error) {
+		console.error(error)
 		return { hasError: true }
 	}
 
