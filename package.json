@@ -52,6 +52,7 @@
     "@types/react-cache": "^2.0.1",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
-    "eslint-plugin-simple-import-sort": "^7.0.0"
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "prettier-plugin-organize-imports": "^1.1.1"
   }
 }

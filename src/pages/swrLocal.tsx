@@ -1,8 +1,8 @@
 import SWRDevtools from '@jjordy/swr-devtools'
+import { createLocalStateHook } from 'createLocalStateHook'
 import { ErrorBoundary } from 'ErrorBoundary'
-import React, { Suspense, useCallback } from 'react'
+import React, { Suspense } from 'react'
 import { cache, mutate } from 'swr'
-import { createLocalStateHook } from 'useLocalState'
 
 const FailFallBack = () => <div>통신 실패</div>
 
@@ -18,41 +18,33 @@ const useSwrLocalState = createLocalStateHook('SwrLocal', {
 })
 
 const DataPane = () => {
-  const { data } = useSwrLocalState()
+  const { data = initialData } = useSwrLocalState()
 
-  return <div>{data?.count}</div>
+  return <div>{data.count}</div>
 }
 
 const DummyPane = () => {
-  const { data } = useSwrLocalState()
+  const { data = initialData } = useSwrLocalState()
 
-  return <div>{data?.dummy}</div>
+  return <div>{data.dummy}</div>
 }
 
 const PlusButton = () => {
   const { mutate } = useSwrLocalState()
-  const onClick = useCallback(() => {
-    return mutate((data = initialData) => {
-      return {
-        dummy: data.dummy,
-        count: data.count + 1,
-      }
-    }, false)
-  }, [mutate])
+  const onClick = () =>
+    mutate((data) => {
+      data.count = data.count + 1
+    })
 
   return <button onClick={onClick}>+</button>
 }
 
 const MinusButton = () => {
   const { mutate } = useSwrLocalState()
-  const onClick = useCallback(() => {
-    return mutate((data = initialData) => {
-      return {
-        dummy: data.dummy,
-        count: data.count - 1,
-      }
-    }, false)
-  }, [mutate])
+  const onClick = () =>
+    mutate((data) => {
+      data.count = data.count - 1
+    })
 
   return <button onClick={onClick}>-</button>
 }
