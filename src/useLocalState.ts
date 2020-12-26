@@ -1,30 +1,10 @@
-import useSwr from 'swr'
+import useSwr, { ConfigInterface } from 'swr'
 
-export const isTruthy = (value: unknown) => value !== undefined && value !== null
-
-export const createLocalStateHook = <T>(key: string, initialState: T) => () => {
-  const { data, mutate } = useSwr(key, () => {
-    const item = sessionStorage.getItem(key)
-    if (isTruthy(item)) {
-	    return JSON.parse(item as string) as T
-    }
-
-	  sessionStorage.setItem(key, JSON.stringify(initialState))
-
-	  return initialState
+export const createLocalStateHook = <D, E>(key: string, options: ConfigInterface<D, E>) => () => {
+  const { data, mutate } = useSwr<D, E>(key, {
+    ...options,
+    suspense: true,
   })
 
-  return {
-    data,
-    mutate: (cb: (state: T) => T) => {
-    	if (isTruthy(data)) {
-		    const newState = cb(data as T)
-		    if (isTruthy(newState)) {
-			    sessionStorage.setItem(key, JSON.stringify(newState))
-		    }
-	    }
-
-      return mutate()
-    },
-  }
+  return { data, mutate }
 }
