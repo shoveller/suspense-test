@@ -1,12 +1,10 @@
 import SWRDevtools from '@jjordy/swr-devtools'
-import { createLocalStateHook } from 'createLocalStateHook'
-import { ErrorBoundary } from 'ErrorBoundary'
+import { ErrorBoundary } from 'components/ErrorBoundary'
+import { FailFallBack } from 'components/FailFallBack'
+import { LoadingFallBack } from 'components/LoadingFallBack'
 import React, { Suspense } from 'react'
 import { cache, mutate } from 'swr'
-
-const FailFallBack = () => <div>통신 실패</div>
-
-const LoadingFallBack = () => <div>로딩중...</div>
+import { createLocalStateHook } from 'utils/createLocalStateHook'
 
 /**
  * 관심사에 따라 분리된 컴퍼넌트들이 사용하기 위한 customHook

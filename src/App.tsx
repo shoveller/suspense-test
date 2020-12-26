@@ -1,9 +1,7 @@
-import './App.css'
-
+import { DynamicRoutes } from 'components/DynamicRoutes'
 import React from 'react'
 import { BrowserRouter, Link } from 'react-router-dom'
-
-import { DynamicRoutes } from './DynamicRoutes'
+import './App.css'
 
 const Loading = () => <div>Loading...</div>
 
@@ -24,6 +22,9 @@ function App() {
             </li>
             <li>
               <Link to="/swrLocal">swr을 활용한 로컬 state 테스트</Link>
+            </li>
+            <li>
+              <Link to="/swrPaging">swr을 활용한 페이징 테스트</Link>
             </li>
           </ul>
           <DynamicRoutes Loading={<Loading />} />

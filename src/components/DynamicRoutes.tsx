@@ -10,13 +10,13 @@ const DynamicPage = (props: IDynamicRoutesProps) => {
   const Page = lazy(async () => {
     try {
       if (pathname === '/') {
-        return await import('./pages')
+        return await import('pages')
       }
 
-      return await import(`./pages${pathname}`)
+      return await import(`../pages${pathname}`)
     } catch (e) {
       if (/not find module/.test(e.message)) {
-        return await import('./pages/404')
+        return await import('pages/404')
       }
       if (/Loading chunk \d+ failed/.test(e.message)) {
         window.location.reload()

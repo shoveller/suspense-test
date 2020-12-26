@@ -1,30 +1,31 @@
-import { Component, ReactNode } from 'react'
+import { cloneElement, Component, ReactElement, ReactNode } from 'react'
 
 interface IProps {
-  fallback: ReactNode
+  fallback: ReactElement
   children: ReactNode
 }
 
 interface IState {
+  errorMessage: string
   hasError: boolean
 }
 
 export class ErrorBoundary extends Component<IProps, IState> {
   // 에러 상태를 설정하는 static 메소드를 반드시 구현해야 합니다.
   static getDerivedStateFromError(error) {
-    console.error(error)
-
-    return { hasError: true }
+    return { hasError: true, errorMessage: error.message }
   }
 
   constructor(props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, errorMessage: '' }
   }
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback
+      return cloneElement(this.props.fallback, {
+        errorMessage: this.state.errorMessage,
+      })
     }
 
     return this.props.children

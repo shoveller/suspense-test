@@ -9,8 +9,6 @@
     ],
     "max-depth": ["error", { "max": 3 }],
     "no-unneeded-ternary": ["error", { "defaultAssignment": false }],
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
     "sort-imports": "off",
     "import/order": "off",
     "semi": ["error", "never"]
