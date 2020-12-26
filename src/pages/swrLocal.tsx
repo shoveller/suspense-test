@@ -53,7 +53,7 @@ const SwrLocal = () => {
       <SWRDevtools cache={cache} mutate={mutate} />
       <p>SWR로 로컬 상태를 제어하는 예제입니다.</p>
       <p>
-        SWR은 내부에 캐시를 가지고 있기 때문에 별다른 수정 없이 state tree 대용으로 사용할 수
+        SWR은 내부에 캐시를 가지고 있기 때문에 별다른 수정 없이 상태관리 대용으로 사용할 수
         있습니다.
       </p>
       <ErrorBoundary fallback={<FailFallBack />}>
