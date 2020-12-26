@@ -33,7 +33,6 @@ const PlusButton = () => {
   const { mutate } = useSwrLocalState()
   const onClick = () =>
     mutate((data) => {
-      // @ts-ignore
       data.count = data.count + 1
     })
 
@@ -44,7 +43,6 @@ const MinusButton = () => {
   const { mutate } = useSwrLocalState()
   const onClick = () =>
     mutate((data) => {
-      // @ts-ignore
       data.count = data.count - 1
     })
 

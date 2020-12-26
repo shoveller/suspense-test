@@ -1,8 +1,15 @@
 import produce, { Draft } from 'immer'
 import useSwr, { ConfigInterface } from 'swr'
 
-export const createLocalStateHook = <D, E>(key: string, options: ConfigInterface<D, E>) => () => {
-  const { data, mutate } = useSwr<D, E>(key, {
+interface IConfigInterface<IData, IError> extends ConfigInterface<IData, IError> {
+  initialData: IData
+}
+
+export const createLocalStateHook = <IData, IError>(
+  key: string,
+  options: IConfigInterface<IData, IError>,
+) => () => {
+  const { data, mutate } = useSwr<IData, IError>(key, {
     ...options,
     suspense: true,
     refreshInterval: 0,
@@ -15,9 +22,9 @@ export const createLocalStateHook = <D, E>(key: string, options: ConfigInterface
 
   return {
     data,
-    mutate(mutateCallback: (draft: Draft<D> | undefined) => void) {
-      return mutate((state = options.initialData) => {
-        return produce<D | undefined>(state, mutateCallback)
+    mutate(mutateCallback: (draft: Draft<IData>) => void) {
+      return mutate((state: IData = options.initialData) => {
+        return produce<IData>(state, mutateCallback)
       }, false)
     },
   }
