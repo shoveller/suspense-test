@@ -2,7 +2,15 @@ import { ErrorBoundary } from 'components/ErrorBoundary'
 import { FailFallBack } from 'components/FailFallBack'
 import { LoadingFallBack } from 'components/LoadingFallBack'
 import React, { Suspense } from 'react'
-import { atom, RecoilRoot, useRecoilValue } from 'recoil'
+import {
+  atom,
+  RecoilRoot,
+  selector,
+  selectorFamily,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil'
 
 interface IPokemon {
   name: string
@@ -16,43 +24,59 @@ interface IPokemonList {
   results: IPokemon[]
 }
 
-const pokemonList = atom<IPokemonList>({
-  key: 'pokemonList',
-  default: new Promise((resolve) => {
-    setTimeout(
-      () =>
-        resolve({
-          count: null,
-          next: null,
-          previous: null,
-          results: [],
-        }),
-      1000,
-    )
-  }),
+interface IPageParam extends Record<string, string> {
+  offset: string
+  limit: string
+}
+
+const pokemonListPageAtom = atom({
+  key: 'pokemonListPagingAtom',
+  default: 1,
 })
 
-// const useTestPaging = (
-//   params = {
-//     offset: 0,
-//     limit: 5,
-//   },
-// ) => {
-//   const [pagingParam, setPagingParam] = useState(params)
-//
-//   return useRequest<IPokemonList, Error>({
-//     baseURL: 'https://pokeapi.co/api/v2',
-//     url: 'pokemon',
-//     params: {
-//       offset: 0,
-//       limit: 5,
-//     },
-//   })
-// }
+const pokemonListPageSelector = selectorFamily<IPageParam, number>({
+  key: 'pokemonListParamSelector',
+  get: (limit) => ({ get }) => {
+    const pageNo = get(pokemonListPageAtom)
+    const offset = (pageNo - 1) * limit
+
+    if (offset < 0) {
+      return {
+        offset: `0`,
+        limit: `${limit}`,
+      }
+    }
+
+    if (limit < 0) {
+      return {
+        offset: `${offset}`,
+        limit: `0`,
+      }
+    }
+
+    return {
+      offset: `${offset}`,
+      limit: `${limit}`,
+    }
+  },
+})
+
+const pokemonListSelector = selector<IPokemonList>({
+  key: 'pokemonListSelector',
+  async get({ get }) {
+    const params = get(pokemonListPageSelector(5))
+    const urlSearchParams = new URLSearchParams(params)
+    const pokemonList: IPokemonList = await fetch(
+      `https://pokeapi.co/api/v2/pokemon?${urlSearchParams}`,
+    ).then((res) => res.json())
+
+    return pokemonList
+  },
+})
 
 const Rows = () => {
-  const data = useRecoilValue(pokemonList)
-  const rows = data?.results.map((item, index) => {
+  const { results } = useRecoilValue(pokemonListSelector)
+  const rows = results.map((item, index) => {
     return (
       <tr key={`row_${index}`}>
         <td>
@@ -75,27 +99,27 @@ const Table = () => {
   )
 }
 
-// const PrevButton = () => {
-//   const { data, mutate } = useTestPaging()
-//   if (!data?.previous) return <></>
-//
-//   const { searchParams } = new URL(data?.previous)
-//   const offset = parseInt(searchParams.get('offset') || '5', 10)
-//   const limit = parseInt(searchParams.get('limit') || '0', 10)
-//
-//   const pagingInfo = paginate(data?.count, limit)
-//
-//   const onClick = () => {}
-//
-//   return <button onClick={onClick}>이전</button>
-// }
+const Prev = () => {
+  const [page, setPage] = useRecoilState(pokemonListPageAtom)
+  if (page === 1) {
+    return <></>
+  }
+
+  return <button onClick={() => setPage((page) => page - 1)}>이전페이지</button>
+}
+
+const Next = () => {
+  const setPage = useSetRecoilState(pokemonListPageAtom)
+
+  return <button onClick={() => setPage((page) => page + 1)}>다음페이지</button>
+}
 
 const Paginator = () => {
   return (
-    <div>
-      <button>이전</button>
-      <button>이후</button>
-    </div>
+    <p>
+      <Prev />
+      <Next />
+    </p>
   )
 }
 
@@ -104,8 +128,8 @@ const RecoilPaging = () => {
     <RecoilRoot>
       <ErrorBoundary fallback={<FailFallBack />}>
         <Suspense fallback={<LoadingFallBack />}>
-          <Table />
           <Paginator />
+          <Table />
         </Suspense>
       </ErrorBoundary>
     </RecoilRoot>

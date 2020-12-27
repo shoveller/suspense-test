@@ -1,3 +1,4 @@
+import produce from 'immer'
 import React, { PropsWithChildren, useCallback } from 'react'
 import { atom, RecoilRoot, selector, useRecoilState } from 'recoil'
 
@@ -28,12 +29,20 @@ const userNameSelector = selector<string>({
   set({ set }, name) {
     if (typeof name !== 'string') return
     const [firstName = '', lastName = ''] = name.split(' ')
-    set(userState, (prevValue) => {
-      return {
-        ...prevValue,
-        firstName,
-        lastName,
-      }
+    set(userState, (user) => {
+      /**
+       * set 함수는 변경을 반영한 새 객체를 반환해야 합니다.
+       * depth가 깊어졌다면 immer를 사용해 절차를 단순하게 만들 수 있습니다.
+       */
+      // {
+      //   ...prevValue,
+      //   firstName,
+      //   lastName,
+      // }
+      return produce(user, (draft) => {
+        draft.firstName = firstName
+        draft.lastName = lastName
+      })
     })
   },
 })

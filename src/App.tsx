@@ -3,7 +3,7 @@ import React from 'react'
 import { BrowserRouter, Link } from 'react-router-dom'
 import './App.css'
 
-const Loading = () => <div>Loading...</div>
+const PageLoading = () => <div>페이지 로딩중...</div>
 
 function App() {
   return (
@@ -33,7 +33,7 @@ function App() {
               <Link to="/recoilPaging">recoil을 활용한 페이징 테스트</Link>
             </li>
           </ul>
-          <DynamicRoutes Loading={<Loading />} />
+          <DynamicRoutes Loading={<PageLoading />} />
         </BrowserRouter>
       </header>
     </div>
