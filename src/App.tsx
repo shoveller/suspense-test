@@ -26,6 +26,12 @@ function App() {
             <li>
               <Link to="/swrPaging">swr을 활용한 페이징 테스트</Link>
             </li>
+            <li>
+              <Link to="/recoilTest">recoil의 기본적인 사용법 테스트</Link>
+            </li>
+            <li>
+              <Link to="/recoilPaging">recoil을 활용한 페이징 테스트</Link>
+            </li>
           </ul>
           <DynamicRoutes Loading={<Loading />} />
         </BrowserRouter>

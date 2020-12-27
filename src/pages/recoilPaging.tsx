@@ -1,10 +1,8 @@
-import SWRDevtools from '@jjordy/swr-devtools'
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { FailFallBack } from 'components/FailFallBack'
 import { LoadingFallBack } from 'components/LoadingFallBack'
 import React, { Suspense } from 'react'
-import { cache, mutate } from 'swr'
-import { useRequest } from 'utils/useRequest'
+import { atom, RecoilRoot, useRecoilValue } from 'recoil'
 
 interface IPokemon {
   name: string
@@ -12,37 +10,48 @@ interface IPokemon {
 }
 
 interface IPokemonList {
-  count: number
+  count: number | null
   next: string | null
   previous: string | null
   results: IPokemon[]
 }
 
-const useTestPaging = (
-  params = {
-    offset: 0,
-    limit: 5,
-  },
-) => {
-  return useRequest<IPokemonList, Error>({
-    baseURL: 'https://pokeapi.co/api/v2',
-    url: 'pokemon',
-    params: {
-      offset: 0,
-      limit: 5,
-    },
-  })
-}
+const pokemonList = atom<IPokemonList>({
+  key: 'pokemonList',
+  default: new Promise((resolve) => {
+    setTimeout(
+      () =>
+        resolve({
+          count: null,
+          next: null,
+          previous: null,
+          results: [],
+        }),
+      1000,
+    )
+  }),
+})
+
+// const useTestPaging = (
+//   params = {
+//     offset: 0,
+//     limit: 5,
+//   },
+// ) => {
+//   const [pagingParam, setPagingParam] = useState(params)
+//
+//   return useRequest<IPokemonList, Error>({
+//     baseURL: 'https://pokeapi.co/api/v2',
+//     url: 'pokemon',
+//     params: {
+//       offset: 0,
+//       limit: 5,
+//     },
+//   })
+// }
 
 const Rows = () => {
-  /**
-   * swr은 default fetcher로도 작업을 할 수 있습니다.
-   */
-  // const { data } = useSwr<IPokemonList, Error>('https://pokeapi.co/api/v2/pokemon')
-  /**
-   * 아래의 예는 axios를 fetcher로 사용한 것입니다.
-   */
-  const { data } = useTestPaging()
+  const data = useRecoilValue(pokemonList)
   const rows = data?.results.map((item, index) => {
     return (
       <tr key={`row_${index}`}>
@@ -82,8 +91,6 @@ const Table = () => {
 // }
 
 const Paginator = () => {
-  console.log(cache)
-
   return (
     <div>
       <button>이전</button>
@@ -92,19 +99,17 @@ const Paginator = () => {
   )
 }
 
-const SwrPaging = () => {
+const RecoilPaging = () => {
   return (
-    <>
-      <p>swr의 cache를 2개 이상의 컴퍼넌트와 공유하는 오피셜한 방법이 없다</p>
-      <SWRDevtools cache={cache} mutate={mutate} />
+    <RecoilRoot>
       <ErrorBoundary fallback={<FailFallBack />}>
         <Suspense fallback={<LoadingFallBack />}>
           <Table />
           <Paginator />
         </Suspense>
       </ErrorBoundary>
-    </>
+    </RecoilRoot>
   )
 }
 
-export default SwrPaging
+export default RecoilPaging
