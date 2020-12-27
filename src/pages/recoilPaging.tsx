@@ -1,6 +1,7 @@
 import { ErrorBoundary } from 'components/ErrorBoundary'
 import { FailFallBack } from 'components/FailFallBack'
 import { LoadingFallBack } from 'components/LoadingFallBack'
+import PokeAPI, { INamedApiResourceList, IPokemon } from 'pokeapi-typescript'
 import React, { Suspense } from 'react'
 import {
   atom,
@@ -12,21 +13,9 @@ import {
   useSetRecoilState,
 } from 'recoil'
 
-interface IPokemon {
-  name: string
-  url: string
-}
-
-interface IPokemonList {
-  count: number | null
-  next: string | null
-  previous: string | null
-  results: IPokemon[]
-}
-
-interface IPageParam extends Record<string, string> {
-  offset: string
-  limit: string
+interface IPageParam {
+  offset: number
+  limit: number
 }
 
 const pokemonListPageAtom = atom({
@@ -42,35 +31,57 @@ const pokemonListPageSelector = selectorFamily<IPageParam, number>({
 
     if (offset < 0) {
       return {
-        offset: `0`,
-        limit: `${limit}`,
+        offset: 0,
+        limit,
       }
     }
 
     if (limit < 0) {
       return {
-        offset: `${offset}`,
-        limit: `0`,
+        offset,
+        limit: 0,
       }
     }
 
     return {
-      offset: `${offset}`,
-      limit: `${limit}`,
+      offset,
+      limit,
     }
   },
 })
 
-const pokemonListSelector = selector<IPokemonList>({
+// /**
+//  * 1. 패치에 1초 가량이 걸리는 비동기 호출이 있을때
+//  */
+// const rand = selector<number>({
+//   key: 'rand',
+//   get() {
+//     return new Promise((resolve) => setTimeout(() => resolve(Math.random()), 1000))
+//   },
+// })
+
+const pokemonListSelector = selector<INamedApiResourceList<IPokemon>>({
   key: 'pokemonListSelector',
   async get({ get }) {
-    const params = get(pokemonListPageSelector(5))
-    const urlSearchParams = new URLSearchParams(params)
-    const pokemonList: IPokemonList = await fetch(
-      `https://pokeapi.co/api/v2/pokemon?${urlSearchParams}`,
-    ).then((res) => res.json())
+    const { limit, offset } = get(pokemonListPageSelector(5))
+    const pokemonList = await PokeAPI.Pokemon.list(limit, offset)
 
-    return pokemonList
+    // /**
+    //  * 2. noWait 이라는 유틸리티 함수를 사용하면 응답속도가 제각각인 ajax호출도 문제없이 관리할 수 있다.
+    //  * 이것은 noWait이 값을 loaderble로 만들어주기 때문이다.
+    //  * 하지만 잘 동작하지 않는듯하다
+    //  */
+    // const rndLoaderble = await get(noWait(rand))
+
+    return {
+      ...pokemonList,
+      results: pokemonList.results.map((item) => {
+        return {
+          ...item,
+          name: `${item.name}`,
+        }
+      }),
+    }
   },
 })
 
