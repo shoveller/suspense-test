@@ -3,57 +3,65 @@ import { ErrorBoundary } from 'components/ErrorBoundary'
 import { FailFallBack } from 'components/FailFallBack'
 import { LoadingFallBack } from 'components/LoadingFallBack'
 import React, { Suspense } from 'react'
-import { cache, mutate } from 'swr'
-import { useRequest } from 'utils/useRequest'
+import useSwr, { cache, mutate } from 'swr'
+import { IPokemon, INamedApiResourceList } from 'pokeapi-typescript'
 
-interface IPokemon {
-  name: string
-  url: string
+const fetcher = async (input: RequestInfo, init?: RequestInit) => {
+  const res = await fetch(input, init)
+
+  return res.json()
 }
 
-interface IPokemonList {
-  count: number
-  next: string | null
-  previous: string | null
-  results: IPokemon[]
+interface IPaging {
+  offset: number
+  limit: number
 }
 
-const useTestPaging = (
-  params = {
+const usePokemonRepository = () => {
+  const initialData: IPaging = {
     offset: 0,
     limit: 5,
-  },
-) => {
-  return useRequest<IPokemonList, Error>({
-    baseURL: 'https://pokeapi.co/api/v2',
-    url: 'pokemon',
-    params: {
-      offset: 0,
-      limit: 5,
-    },
+  }
+  const paging = useSwr<IPaging>('paging', {
+    initialData,
   })
+  const searchParams = new URLSearchParams({ offset: `${paging?.data?.offset}`, limit: `${paging?.data?.limit}` })
+  const url = new URL('/api/v2/pokemon', 'https://pokeapi.co')
+  url.search = searchParams.toString()
+  const { data, error } = useSwr<INamedApiResourceList<IPokemon>, Error>(url.toString(), fetcher, {
+    fetcher,
+    suspense: true,
+  })
+
+  return {
+    url: url.toString(),
+    data,
+    error,
+    paging: paging.data,
+    async move(offset: number) {
+      await paging.mutate((state = { limit: 5, offset: 0 }) => {
+        return {
+          limit: state.limit,
+          offset: state.offset + offset
+        }
+      })
+    },
+  }
 }
 
 const Rows = () => {
-  /**
-   * swr은 default fetcher로도 작업을 할 수 있습니다.
-   */
-  // const { data } = useSwr<IPokemonList, Error>('https://pokeapi.co/api/v2/pokemon')
-  /**
-   * 아래의 예는 axios를 fetcher로 사용한 것입니다.
-   */
-  const { data } = useTestPaging()
+  const { data } = usePokemonRepository()
   const rows = data?.results.map((item, index) => {
     return (
       <tr key={`row_${index}`}>
         <td>
-          <a href={item.url}>{item.name}</a>
+          <a href='#'>{item.name}</a>
         </td>
       </tr>
     )
   })
 
-  return <>{rows}</>
+  return <Suspense fallback={<h6>로딩중...</h6>}>{rows}</Suspense>
 }
 
 const Table = () => {
@@ -66,28 +74,13 @@ const Table = () => {
   )
 }
 
-// const PrevButton = () => {
-//   const { data, mutate } = useTestPaging()
-//   if (!data?.previous) return <></>
-//
-//   const { searchParams } = new URL(data?.previous)
-//   const offset = parseInt(searchParams.get('offset') || '5', 10)
-//   const limit = parseInt(searchParams.get('limit') || '0', 10)
-//
-//   const pagingInfo = paginate(data?.count, limit)
-//
-//   const onClick = () => {}
-//
-//   return <button onClick={onClick}>이전</button>
-// }
-
 const Paginator = () => {
-  console.log(cache)
+  const { move } = usePokemonRepository()
 
   return (
     <div>
-      <button>이전</button>
-      <button>이후</button>
+      <button onClick={() => move(-5)}>이전</button>
+      <button onClick={() => move(5)}>이후</button>
     </div>
   )
 }
@@ -95,7 +88,6 @@ const Paginator = () => {
 const SwrPaging = () => {
   return (
     <>
-      <p>swr의 cache를 2개 이상의 컴퍼넌트와 공유하는 오피셜한 방법이 없다</p>
       <SWRDevtools cache={cache} mutate={mutate} />
       <ErrorBoundary fallback={<FailFallBack />}>
         <Suspense fallback={<LoadingFallBack />}>
