@@ -9,7 +9,7 @@ import {
   selector,
   selectorFamily,
   useRecoilState,
-  useRecoilValue,
+  useRecoilValue, useRecoilValueLoadable,
   useSetRecoilState,
 } from 'recoil'
 
@@ -86,18 +86,28 @@ const pokemonListSelector = selector<INamedApiResourceList<IPokemon>>({
 })
 
 const Rows = () => {
-  const { results } = useRecoilValue(pokemonListSelector)
-  const rows = results.map((item, index) => {
-    return (
-      <tr key={`row_${index}`}>
-        <td>
-          <a href={item.url}>{item.name}</a>
-        </td>
-      </tr>
-    )
-  })
+  const loadable = useRecoilValueLoadable(pokemonListSelector)
 
-  return <>{rows}</>
+  switch (loadable.state) {
+    case "loading":
+      return <tr><td><LoadingFallBack /></td></tr>
+    case "hasError":
+      return <tr><td><h6>에러발생</h6></td></tr>
+    case "hasValue":
+      const rows = loadable.contents.results.map((item, index) => {
+        return (
+          <tr key={`row_${index}`}>
+            <td>
+              <a href={item.url}>{item.name}</a>
+            </td>
+          </tr>
+        )
+      })
+
+      return <>{rows}</>
+  }
+
+  return <></>
 }
 
 const Table = () => {
@@ -138,10 +148,8 @@ const RecoilPaging = () => {
   return (
     <RecoilRoot>
       <ErrorBoundary fallback={<FailFallBack />}>
-        <Suspense fallback={<LoadingFallBack />}>
-          <Paginator />
-          <Table />
-        </Suspense>
+        <Paginator />
+        <Table />
       </ErrorBoundary>
     </RecoilRoot>
   )

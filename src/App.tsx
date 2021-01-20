@@ -30,7 +30,10 @@ function App() {
               <Link to="/recoilTest">recoil의 기본적인 사용법 테스트</Link>
             </li>
             <li>
-              <Link to="/recoilPaging">recoil을 활용한 페이징 테스트</Link>
+              <Link to="/recoilPaging">recoil을 활용한 페이징 테스트(suspense)</Link>
+            </li>
+            <li>
+              <Link to="/recoilPagingLoaderble">recoil을 활용한 페이징 테스트(loaderble)</Link>
             </li>
           </ul>
           <DynamicRoutes Loading={<PageLoading />} />
