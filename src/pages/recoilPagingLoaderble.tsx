@@ -18,16 +18,18 @@ interface IPageParam {
   limit: number
 }
 
-const pokemonListPageNo = atom({
-  key: 'pokemonListPageNo',
+// 아톰이나 셀렉터의 이름은 반드시 명사여야 한다
+// 동사는 유틸리티 함수가 담당한다.
+const pageNo = atom({
+  key: 'pageNo',
   default: 1,
 })
 
-const pokemonListPagingInfo = selectorFamily<IPageParam, number>({
-  key: 'pokemonListPagingInfo',
+const pagingInfo = selectorFamily<IPageParam, number>({
+  key: 'pagingInfo',
   get: (limit) => ({ get }) => {
-    const pageNo = get(pokemonListPageNo)
-    const offset = (pageNo - 1) * limit
+    const no = get(pageNo)
+    const offset = (no - 1) * limit
 
     if (offset < 0) {
       return {
@@ -60,10 +62,10 @@ const pokemonListPagingInfo = selectorFamily<IPageParam, number>({
 //   },
 // })
 
-const pokemonListSelector = selector<INamedApiResourceList<IPokemon>>({
-  key: 'pokemonListSelector',
+const pokemonList = selector<INamedApiResourceList<IPokemon>>({
+  key: 'pokemonList',
   async get({ get }) {
-    const { limit, offset } = get(pokemonListPagingInfo(5))
+    const { limit, offset } = get(pagingInfo(5))
     const pokemonList = await PokeAPI.Pokemon.list(limit, offset)
 
     // /**
@@ -86,7 +88,7 @@ const pokemonListSelector = selector<INamedApiResourceList<IPokemon>>({
 })
 
 const Rows = () => {
-  const loadable = useRecoilValueLoadable(pokemonListSelector)
+  const loadable = useRecoilValueLoadable(pokemonList)
 
   switch (loadable.state) {
     case "loading":
@@ -121,7 +123,7 @@ const Table = () => {
 }
 
 const Prev = () => {
-  const [page, setPage] = useRecoilState(pokemonListPageNo)
+  const [page, setPage] = useRecoilState(pageNo)
   if (page === 1) {
     return <></>
   }
@@ -130,7 +132,7 @@ const Prev = () => {
 }
 
 const Next = () => {
-  const setPage = useSetRecoilState(pokemonListPageNo)
+  const setPage = useSetRecoilState(pageNo)
 
   return <button onClick={() => setPage((page) => page + 1)}>다음페이지</button>
 }
