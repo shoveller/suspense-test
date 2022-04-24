@@ -7,7 +7,7 @@ import { cache, mutate } from 'swr'
 import { createLocalStateHook } from 'utils/createLocalStateHook'
 
 /**
- * 관심사에 따라 분리된 컴퍼넌트들이 사용하기 위한 customHook
+ * 관심사에 따라 분리된 컴포넌트들이 사용하기 위한 customHook
  */
 const initialData = { count: 0, dummy: '야호' }
 

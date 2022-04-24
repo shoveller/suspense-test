@@ -49,7 +49,7 @@ const SuspenseTestPage = () => {
     <>
       <p>Suspense는 Promise를 잡아내는 ErrorBoundary 입니다.</p>
       <p>
-        Suspense의 하위 컴퍼넌트가 Promise를 throw 하면, Suspense 에 fallback으로 설정한 컴퍼넌트를
+        Suspense의 하위 컴포넌트가 Promise를 throw 하면, Suspense 에 fallback으로 설정한 컴포넌트를
         표시합니다.
       </p>
       <p>이 기능을 사용하려면, 대기중일 때 promise를 throw 하는 메커니즘을 갖춰야 합니다.</p>

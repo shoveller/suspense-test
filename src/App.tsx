@@ -35,6 +35,9 @@ function App() {
             <li>
               <Link to="/recoilPagingLoaderble">recoil을 활용한 페이징 테스트(loaderble)</Link>
             </li>
+            <li>
+              <Link to="/jotaiPaging">jotail를 활용한 페이징 테스트(suspense)</Link>
+            </li>
           </ul>
           <DynamicRoutes Loading={<PageLoading />} />
         </BrowserRouter>
