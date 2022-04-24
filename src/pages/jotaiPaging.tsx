@@ -6,10 +6,15 @@ import {atomFamily} from "jotai/utils"
 import PokeAPI, { INamedApiResourceList, IPokemon } from 'pokeapi-typescript'
 import React, { Suspense } from 'react'
 
+interface IPageParam {
+  offset: number
+  limit: number
+}
+
 const pokemonListPageNo = atom(1)
 
 const pokemonListPagingInfo = atomFamily((limit: number) => {
-  return atom((get) => {
+  return atom<IPageParam>((get) => {
     const pageNo = get(pokemonListPageNo)
     const offset = (pageNo - 1) * limit
 
