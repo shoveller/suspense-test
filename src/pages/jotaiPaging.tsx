@@ -3,7 +3,7 @@ import { FailFallBack } from 'components/FailFallBack'
 import { LoadingFallBack } from 'components/LoadingFallBack'
 import {atom, Provider, useAtom, useAtomValue, useSetAtom} from "jotai"
 import {atomFamily} from "jotai/utils"
-import PokeAPI, { INamedApiResourceList, IPokemon } from 'pokeapi-typescript'
+import PokeAPI from 'pokeapi-typescript'
 import React, { Suspense } from 'react'
 
 interface IPageParam {
@@ -13,49 +13,50 @@ interface IPageParam {
 
 const pokemonListPageNo = atom(1)
 
-const pokemonListPagingInfo = atomFamily((limit: number) => {
-  return atom<IPageParam>((get) => {
-    const pageNo = get(pokemonListPageNo)
-    const offset = (pageNo - 1) * limit
+const getPagingInfo = (pageNo: number): IPageParam => {
+  const limit = 5
+  const offset = (pageNo - 1) * limit
 
-    if (offset < 0) {
-      return {
-        offset: 0,
-        limit,
-      }
+  if (offset < 0) {
+    return {
+      offset: 0,
+      limit: 5,
     }
+  }
 
-    if (limit < 0) {
-      return {
-        offset,
-        limit: 0,
-      }
-    }
-
+  if (limit < 0) {
     return {
       offset,
-      limit,
+      limit: 0,
+    }
+  }
+
+  return {
+    offset,
+    limit: 5,
+  }
+}
+
+const pokemonListSelector = atomFamily((pageNo: number) => {
+  return atom(async (get) => {
+    const { limit, offset } = getPagingInfo(pageNo)
+    const pokemonList = await PokeAPI.Pokemon.list(limit, offset)
+
+    return {
+      ...pokemonList,
+      results: pokemonList.results.map((item) => {
+        return {
+          ...item,
+          name: `${item.name}`,
+        }
+      })
     }
   })
 })
 
-const pokemonListSelector = atom(async (get) => {
-  const { limit, offset } = get(pokemonListPagingInfo(5))
-  const pokemonList = await PokeAPI.Pokemon.list(limit, offset)
-
-  return {
-    ...pokemonList,
-    results: pokemonList.results.map((item) => {
-      return {
-        ...item,
-        name: `${item.name}`,
-      }
-    })
-  }
-})
-
 const Rows = () => {
-  const { results } = useAtomValue(pokemonListSelector)
+  const pageNo = useAtomValue(pokemonListPageNo)
+  const { results } = useAtomValue(pokemonListSelector(pageNo))
   const rows = results.map((item, index) => {
     return (
       <tr key={`row_${index}`}>
