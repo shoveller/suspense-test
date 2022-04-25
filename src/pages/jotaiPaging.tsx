@@ -3,16 +3,17 @@ import {FailFallBack} from 'components/FailFallBack'
 import {LoadingFallBack} from 'components/LoadingFallBack'
 import {atom, Provider, useAtom, useAtomValue, useSetAtom} from "jotai"
 import {useAtomsDevtools} from "jotai/devtools"
-import {atomFamily} from "jotai/utils"
+import {atomFamily, atomWithReset, useResetAtom} from "jotai/utils"
 import PokeAPI from 'pokeapi-typescript'
-import React, {FC, Suspense} from 'react'
+import React, {FC, Suspense, useEffect} from 'react'
 
 interface IPageParam {
     offset: number
     limit: number
 }
 
-const pokemonListPageNo = atom(1)
+// 리셋을 할 수 있도록 Resettable atom으로 선언
+const pokemonListPageNo = atomWithReset(1)
 
 const getPagingInfo = (pageNo: number): IPageParam => {
     const limit = 5
@@ -38,7 +39,10 @@ const getPagingInfo = (pageNo: number): IPageParam => {
     }
 }
 
+// atomFamily 내부에 수납되는 key 목록을 담음
+const paramSet = new Set<number>()
 const pokemonListSelector = atomFamily((pageNo: number) => {
+    paramSet.add(pageNo)
     const selector = atom(async (get) => {
         const {limit, offset} = getPagingInfo(pageNo)
         const pokemonList = await PokeAPI.Pokemon.list(limit, offset)
@@ -57,6 +61,19 @@ const pokemonListSelector = atomFamily((pageNo: number) => {
 
     return selector
 })
+
+// atom군을 리셋하는 커스텀 훅
+const useResetList = () => {
+    const resetPager = useResetAtom(pokemonListPageNo)
+
+    return () => {
+        resetPager()
+
+        Array.from(paramSet.entries()).forEach(([key]) => {
+            pokemonListSelector.remove(key)
+        })
+    }
+}
 
 const Rows = () => {
     const pageNo = useAtomValue(pokemonListPageNo)
@@ -115,6 +132,13 @@ const DevTools: FC = ({children}) => {
 }
 
 const JotaiPaging = () => {
+    const resetList = useResetList()
+    useEffect(() => {
+        return () => {
+            resetList()
+        }
+    },[])
+
     return (
         <Provider>
             <DevTools>
